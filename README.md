@@ -1,5 +1,6 @@
 # SWEATER-IoT
 **Smart Weather and Environmental Alarm for Temperature and Outfit Recommendations (SWEATER)**
+### Will be updated when report done!
 
 ## Project Overview
 SWEATER-IoT is designed to provide smart recommendations for daily outfits based on current weather conditions and indoor temperatures. The system also functions as an alarm clock, displaying the current time, weather, and outfit suggestions, and allows users to set alarms and tasks via a Python Flask dashboard.
