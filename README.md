@@ -228,20 +228,19 @@ git clone https://github.com/frankuman/SWEATER-IoT/sweater
 ![Circuit Diagram](sketch.png)
 
 ### Electrical Calculations
+**Power = Voltage x Current**
 
+- OLED: 3.3V x 40mA = 132mW 
+- LCD: 5V x 120mA = 600mW
+- LEDs: 3V, 20mA each for 9 LEDs, total = 180mA x 3v = 540mW
+- DHT11: 3V x 0.5mA = 1.5mW 
+- MCP9700A: 3V x 6µA = 0.018mW
+- Pico: 3.3V x 45mA = 148.5mW
+- Total power consumption = 1422mW = 1.422W
 
-### Assembly Instructions
+**If we use a 12V 2Ah battery, we can calculate how long it will last**
 
-#### Putting Everything Together
-
-## Platform
-### Chosen Platform
-
-
-### Platform Functionality
-
-
-### Reasons for Choosing This Platform
+(12 * 2)/(1.422) = 16.8 hours
 
 
 ## The Code
