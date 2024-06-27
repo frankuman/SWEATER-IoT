@@ -78,6 +78,14 @@ def alarm_trigger(weather_data):
     message = "flash"
     client.publish(MQTT_TOPIC_PUB, message)
     capture_image()
+    time.sleep(2)
+    capture_image()
+    time.sleep(2)
+    capture_image()
+    time.sleep(2)
+    capture_image()
+    time.sleep(2)
+    capture_image()
     time.sleep(5)
     
 
@@ -327,6 +335,7 @@ app.alarm_thread_started = True
 
 @app.route('/')
 def index():
+    capture_image()
     return render_template('index.html')
 
 @app.route('/set_time', methods=['POST'])
@@ -374,7 +383,6 @@ def send_control():
 def history():
     return render_template('history.html')
 
-#this is kindof generated with chatgpt...
 @app.route('/get_historical_data', methods=['GET'])
 def get_historical_data():
     with open(temperature_data_file, 'r') as file:
