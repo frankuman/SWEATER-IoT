@@ -1,8 +1,8 @@
 import ubinascii
 import machine
 
-SSID = 'dlink-DF8C'             #change this
-PASSWORD = 'cervantes!fuck666'  #change this
+SSID = 'ssid'             #change this
+PASSWORD = 'password'  #change this
 
 MQTT_BROKER = '192.168.0.101'
 MQTT_CLIENT_ID = ubinascii.hexlify(machine.unique_id())
