@@ -32,6 +32,7 @@ current_temperature_data = config.get('Paths', 'current_temperature_data')
 image_directory = os.path.join(os.getcwd(), config.get('Paths', 'image_directory'))
 print(image_directory)
 alarm_time = None
+latest_pred = "No prediction yet."
 lock = threading.Lock()
 
 
@@ -112,12 +113,12 @@ def set_camera_to_auto():
         subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "--set-ctrl=gamma=188"])
         subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "--set-ctrl=sharpness=7"])
         subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "--set-ctrl=white_balance_automatic=1"])
-        subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "--set-ctrl=auto_exposure=3"])
+        subprocess.run(["v4l2-ctl", "-d", "/dev/video0", "--set-ctrl=auto_exposure=2"])
     except Exception as e:
         print("Couldn't set the camera settings, probably using other camera or something")
         print(e)
 
-def capture_image():
+def capture_image(test=False):
     try:
         set_camera_to_auto()
 
@@ -145,7 +146,10 @@ def capture_image():
         if ret:
             current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
             save_directory = image_directory
-            file_path = os.path.join(save_directory, f"predictimage.jpg")
+            if test==True:
+                file_path = os.path.join(save_directory, f"testimage.jpg")
+            else:
+                file_path = os.path.join(save_directory, f"predictimage.jpg")
 
             if not os.path.exists(save_directory):
                 os.makedirs(save_directory)
@@ -281,7 +285,31 @@ def make_prediction(weather_data, image_data, timestamp):
     )
 
     print(response.choices[0].message.content)
+
     prediction = response.choices[0].message.content
+
+    prediction_list = [
+        "1 - Tshirt and shorts",
+        "2 - Tshirt and pants",
+        "3 - Longshirt and pants",
+        "4 - Hoodie and pants",
+        "5 - Light jacket and pants",
+        "6 - Light jacket and hoodie and pants OR raining clothes",
+        "7 - Heavy jacket and pants",
+        "8 - Heavy jacket and hoodie and pants",
+        "9 - Snowstorm, don't go outside"
+    ]
+    
+    try:
+        prediction_index = int(prediction) - 1
+        if 0 <= prediction_index < len(prediction_list):
+            prediction_text = prediction_list[prediction_index]
+        else:
+            prediction_text = "Invalid prediction"
+    except ValueError:
+        prediction_text = "Invalid prediction"
+    global latest_pred
+    latest_pred = prediction_text
     return prediction
 
 def check_alarm_time():
@@ -335,7 +363,7 @@ app.alarm_thread_started = True
 
 @app.route('/')
 def index():
-    capture_image()
+    capture_image(test=True)
     return render_template('index.html')
 
 @app.route('/set_time', methods=['POST'])
@@ -382,7 +410,10 @@ def send_control():
 @app.route('/history')
 def history():
     return render_template('history.html')
-
+@app.route('/get_latest_pred')
+def get_pred():
+    global latest_pred
+    return jsonify(latest_pred)
 @app.route('/get_historical_data', methods=['GET'])
 def get_historical_data():
     with open(temperature_data_file, 'r') as file:

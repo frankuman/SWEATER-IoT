@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature Monitor</title>
-    <!-- bootstrap CSS -->
+    <title>SWEATER-hub</title>
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- custom CSS -->
+    <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 </head>
 <body class="bg-jet text-white container mt-4">
@@ -33,9 +33,12 @@
     <h2 class="text-center">Temperature Data</h2>
     <div id="temperatureData" class="display-4 text-center mt-4"></div>
     <div id="outsideData" class="display-4 text-center mt-4"></div>
-    
-    <div id="imageContainer" class="text-center mt-4">
-    </div>
+    <div id="latestPred" class="display-4 text-center mt-4"></div>
+
+    <h2 class="text-center">Predict image</h2>
+    <div id="imageContainer" class="text-center mt-4"></div>
+    <h2 class="text-center">Latest image</h2>
+    <div id="imageContainer2" class="text-center mt-4"></div>
     
     <script>
         document.getElementById('timeForm').addEventListener('submit', function(event) {
@@ -71,7 +74,7 @@
                 if (data.error) {
                     document.getElementById('temperatureData').innerText = data.error;
                 } else {
-                    const latestTemperature = data.temperature; 
+                    const latestTemperature = data.temperature;
                     document.getElementById('temperatureData').innerText = 'Inside Temperature: ' + latestTemperature.toFixed(2) + '°C';
                 }
             });
@@ -91,12 +94,25 @@
                 }
             });
         }
+        function fetchLatestPred() {
+            fetch('/get_latest_pred')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('message').innerText = data.error;
+                } else {
+                    const predict = data; 
 
+            
+                    document.getElementById('latestPred').innerText = data
+                }
+            });
+        }
         function displayPredictImage() {
             fetch('/static/images/predictimage.jpg', { method: 'HEAD' })
             .then(response => {
                 const imageContainer = document.getElementById('imageContainer');
-                imageContainer.innerHTML = '';  
+                imageContainer.innerHTML = ''; 
 
                 if (response.ok) {
                     const img = document.createElement('img');
@@ -107,13 +123,31 @@
                 }
             });
         }
+        
+        function displayTestImage() {
+            fetch('/static/images/testimage.jpg', { method: 'HEAD' })
+            .then(response => {
+                const imageContainer2 = document.getElementById('imageContainer2');
+                imageContainer2.innerHTML = '';
+
+                if (response.ok) {
+                    const img2 = document.createElement('img');
+                    img2.src = '/static/images/testimage.jpg';
+                    img2.alt = 'Test Image';
+                    img2.className = 'img-fluid mt-4'; 
+                    imageContainer2.appendChild(img2);
+                }
+            });
+        }
 
         setInterval(function() {
             fetchTemperatureData();
             fetchOutsideTemperatureData();
-        }, 5000);  
+            fetchLatestPred();
+        }, 5000);  // Call functions every 5 seconds
+        
         displayPredictImage();
-
+        displayTestImage();
     </script>
 
     <!-- Bootstrap JS and dependencies -->
