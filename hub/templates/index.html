@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Monitor</title>
+    <!-- bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- custom CSS -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+</head>
+<body class="bg-jet text-white container mt-4">
+    <h1 class="text-center">Smart Alarm Clock</h1>
+    <div class="text-center mb-4">
+        <button onclick="location.href='/history'" class="btn btn-majorelle-blue">View Historical Data</button>
+    </div>
+    <form id="timeForm" class="mb-4 bg-tropical-indigo p-3 rounded">
+        <div class="form-group">
+            <label for="alarm_time">Set Alarm Time:</label>
+            <input type="time" class="form-control bg-white text-dark" id="alarm_time" name="alarm_time" required>
+        </div>
+        <button type="submit" class="btn btn-majorelle-blue btn-block">Set Time</button>
+    </form>
+
+    <form id="controlForm" class="mb-4 bg-tropical-indigo p-3 rounded">
+        <div class="form-group">
+            <label for="message">Send Control Message:</label>
+            <input type="text" class="form-control bg-white text-dark" id="message" name="message" required>
+        </div>
+        <button type="submit" class="btn btn-majorelle-blue btn-block">Send</button>
+    </form>
+
+    <h2 class="text-center">Temperature Data</h2>
+    <div id="temperatureData" class="display-4 text-center mt-4"></div>
+    <div id="outsideData" class="display-4 text-center mt-4"></div>
+    
+    <div id="imageContainer" class="text-center mt-4">
+    </div>
+    
+    <script>
+        document.getElementById('timeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('/set_time', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Alarm time set to ' + data.alarm_time);
+            });
+        });
+
+        document.getElementById('controlForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            fetch('/send_control', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Control message sent: ' + data.message);
+            });
+        });
+
+        function fetchTemperatureData() {
+            fetch('/get_temperature_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('temperatureData').innerText = data.error;
+                } else {
+                    const latestTemperature = data.temperature; 
+                    document.getElementById('temperatureData').innerText = 'Inside Temperature: ' + latestTemperature.toFixed(2) + '°C';
+                }
+            });
+        }
+
+        function fetchOutsideTemperatureData() {
+            fetch('/get_outside_temperature_data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('outsideData').innerText = data.error;
+                } else {
+                    const latestTemperature = data.current_temp; 
+                    const windSpeed = data.wind_speed; 
+            
+                    document.getElementById('outsideData').innerText = 'Outside Temperature: ' + latestTemperature.toFixed(2) + '°C \n' + 'Wind: ' + (windSpeed.toFixed(2)/3.6).toFixed(2) + "m/s";
+                }
+            });
+        }
+
+        function displayPredictImage() {
+            fetch('/static/images/predictimage.jpg', { method: 'HEAD' })
+            .then(response => {
+                const imageContainer = document.getElementById('imageContainer');
+                imageContainer.innerHTML = '';  
+
+                if (response.ok) {
+                    const img = document.createElement('img');
+                    img.src = '/static/images/predictimage.jpg';
+                    img.alt = 'Predicted Image';
+                    img.className = 'img-fluid mt-4'; 
+                    imageContainer.appendChild(img);
+                }
+            });
+        }
+
+        setInterval(function() {
+            fetchTemperatureData();
+            fetchOutsideTemperatureData();
+        }, 5000);  
+        displayPredictImage();
+
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

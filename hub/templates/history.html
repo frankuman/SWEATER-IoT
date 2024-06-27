@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Data</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+</head>
+<body class="bg-jet text-white container mt-4">
+    <h1 class="text-center">Historical Data</h1>
+    <div class="text-center">
+        <button onclick="location.href='/'" class="btn btn-majorelle-blue">Go to Main</button>
+    </div>
+    <div id="insideGraph" class="mt-4"></div>
+    <div id="outsideGraph" class="mt-4"></div>
+    <div id="feelsLikeGraph" class="mt-4"></div>
+    <div id="windSpeedGraph" class="mt-4"></div>
+    <div id="humidityGraph" class="mt-4"></div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        fetch('/get_historical_data')
+            .then(response => response.json())
+            .then(data => {
+                Plotly.newPlot('insideGraph', data.inside.data, data.inside.layout);
+                Plotly.newPlot('outsideGraph', data.outside.data, data.outside.layout);
+                Plotly.newPlot('feelsLikeGraph', data.feels_like.data, data.feels_like.layout);
+                Plotly.newPlot('windSpeedGraph', data.wind_speed.data, data.wind_speed.layout);
+                Plotly.newPlot('humidityGraph', data.humidity.data, data.humidity.layout);
+            });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

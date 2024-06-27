@@ -1,0 +1,43 @@
+body.bg-jet {
+    background-color: #A8DCD9;
+    color: #ffffff;
+}
+
+.bg-majorelle-blue {
+    background-color: #E2A3C7;
+    color: #ffffff;
+}
+
+.bg-tropical-indigo {
+    background-color: #E2A3C7;
+    color: #2F2F2F;
+}
+
+.btn-majorelle-blue {
+    background-color: #9882AC;
+    border-color: #FDF7FA;
+}
+
+.btn-majorelle-blue:hover {
+    background-color: #A393BF; 
+    border-color: #4d3fb8;
+}
+
+h1, h2 {
+    margin-bottom: 1rem;
+}
+
+form {
+    margin-bottom: 2rem;
+}
+
+#temperatureData {
+    font-size: 1.5rem; 
+    font-weight: bold;
+    color: #D67AB1; 
+}
+#outsideData {
+    font-size: 1.5rem; 
+    font-weight: bold;
+    color: #4d3fb8; 
+}
