@@ -108,7 +108,7 @@ Follow these step-by-step instructions to successfully set up a SWEATER.
 4. **Start Pi:**
    - Start the Pi and follow the initial setup. If you don't have a preinstalled SD card with an OS on it, you can download Raspberry Pi Imager.
 
-## Raspberry Pi 4 B Software Setup
+## Pi Software Setup
 
 ### 1. Update Package List
 First, update your package list to ensure you get the latest version available:
@@ -127,64 +127,10 @@ Install the Mosquitto broker and the Mosquitto clients:
 sudo apt install mosquitto mosquitto-clients
 ```
 
-### 2. Start and Enable Mosquitto
-Ensure that Mosquitto starts automatically on boot and start the Mosquitto service:
+### 2. Follow guide to setup mosquito
+Ensure to setup the mosquitto listener on port 1883
 
-```sh
-sudo systemctl enable mosquitto
-sudo systemctl start mosquitto
-```
-
-### 3. Verify Installation
-Check the status of the Mosquitto service to make sure it is running correctly:
-
-```sh
-sudo systemctl status mosquitto
-```
-
-You should see output indicating that Mosquitto is active and running.
-
-### 4. Configure Mosquitto
-Mosquitto configuration files are located in `/etc/mosquitto/`. The main configuration file is `mosquitto.conf`, and additional configuration files can be placed in the `conf.d` directory.
-
-#### Example Configuration
-Create or modify the configuration file `/etc/mosquitto/conf.d/default.conf`:
-
-```sh
-sudo nano /etc/mosquitto/conf.d/default.conf
-```
-
-Add the following lines to allow anonymous access and listen on the default MQTT port 1883:
-
-```conf
-listener 1883
-allow_anonymous true
-```
-
-Save and close the file (usually `Ctrl+X`).
-
-### 5. Restart Mosquitto
-After making changes to the configuration, restart the Mosquitto service to apply the new settings:
-
-```sh
-sudo systemctl restart mosquitto
-```
-
-### 6. Testing Mosquitto
-Use the Mosquitto clients to test the broker. Open two terminal windows or tabs. In the first one, subscribe to a topic:
-
-```sh
-mosquitto_sub -h localhost -t test/topic -v
-```
-
-In the second terminal window, publish a message to the same topic:
-
-```sh
-mosquitto_pub -h localhost -t test/topic -m "Hello, SWEATER Hub"
-```
-
-You should see the message "Hello, SWEATER Hub" appear in the first terminal where you subscribed to the topic.
-
+[Mosquitto guide](https://medium.com/gravio-edge-iot-platform/how-to-set-up-a-mosquitto-mqtt-broker-securely-using-client-certificates-82b2aaaef9c8)
 ## Starting the HUB
 
 ### 1. Download the Hub to the Pi
@@ -249,7 +195,7 @@ api_key = Change to your openai API key (https://openai.com/api/)
 ### 4. Starting the hub
 While the hub might not communicate at the moment, it can be started with the following command
 ```sh
-sudo python3 sweaterhub.py
+python sweaterhub.py
 ```
 ### Access right problems
 If the hub has access rights problems, you might need to give it access rights
@@ -265,19 +211,21 @@ sudo chmod -r 777 hub/static/images
 ```sh
 sudo chmod -r 777 path/to/json_storage
 ```
+## Pico Software
+
+### 1. Download the sweater Pico software
+```sh
+git clone https://github.com/frankuman/SWEATER-IoT/sweater
+```
 
 
+## Pi Hardware
+### 1. Plug the USB camera into the Pi
 
-
-
-### Pico Software
-
-## Hardware Setup
-### Pi Hardware
-### Pico Hardware
-
+## Pico Hardware
+### 1. Plug everything in accordingly to the Circuit Diagram
 #### Circuit Diagram
-![Circuit Diagram](path/to/circuit_diagram.jpg)
+![Circuit Diagram](sketch.png)
 
 ### Electrical Calculations
 
