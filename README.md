@@ -168,7 +168,7 @@ or
 pip3 install -r requirements.txt
 ```
 
-### 3. Change the config.ini File
+### 4. Change the config.ini File
 
 ```ini
 [MQTT]
@@ -192,7 +192,7 @@ location = Karlskrona (Change to your location)
 api_key = Change to your openai API key (https://openai.com/api/)
 ```
 
-### 4. Starting the hub
+### 5. Starting the hub
 While the hub might not communicate at the moment, it can be started with the following command
 ```sh
 python sweaterhub.py
