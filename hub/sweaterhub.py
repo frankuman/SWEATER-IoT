@@ -416,10 +416,13 @@ def get_pred():
     return jsonify(latest_pred)
 @app.route('/get_historical_data', methods=['GET'])
 def get_historical_data():
+    current_time = datetime.utcnow()
+    cutoff_time = current_time - timedelta(hours=23, minutes=59)
+    
     with open(temperature_data_file, 'r') as file:
         lines = file.readlines()
-    outside_data = [json.loads(line) for line in lines]
-    
+    outside_data = [json.loads(line) for line in lines if datetime.fromisoformat(json.loads(line)['timestamp']) > cutoff_time]
+
     outside_timestamps = [datetime.fromisoformat(entry['timestamp']).strftime('%H:%M:%S') for entry in outside_data]
     current_temps = [entry['current_temp'] for entry in outside_data]
     feels_like = [entry['feels_like'] for entry in outside_data]
@@ -428,7 +431,7 @@ def get_historical_data():
 
     with open(current_temperature_data, 'r') as file:
         lines = file.readlines()
-    inside_data = [json.loads(line) for line in lines]
+    inside_data = [json.loads(line) for line in lines if datetime.fromisoformat(json.loads(line)['timestamp']) > cutoff_time]
 
     inside_timestamps = [datetime.fromisoformat(entry['timestamp']).strftime('%H:%M:%S') for entry in inside_data]
     inside_temps = [entry['temperature'] for entry in inside_data]
