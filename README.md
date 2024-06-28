@@ -580,7 +580,7 @@ For future work, there is some work which would be interesting to see.
 
 ### Pictures
 ![picture](picture1.jpg)
-![picture](picture2.jpg)
+
 
 ### Video Presentation
 
