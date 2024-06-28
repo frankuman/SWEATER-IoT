@@ -568,8 +568,8 @@ If the sweater is not receiving any data from the hub, keep the hub running and 
 There is a 3D printable case if any users would attempt to print one. It features holes for the screens and a hole for the LED lamps. The hole for the LED lamps also has a 
 inserter for a frosted diffuser acrylic sheet. This case does need some work tho.
 It has 3 holes on the side, incase anyone attempts to implement buttons
-It needs something to hold the displays.
-
+It needs something to hold the displays and a hole for the USB cable.
+![picture](skaletbild.png)
 ### Final Thoughts
 This project was really fun to learn IoT programming, MQTT messaging, and programming for screens. I believe Sweater is a bit unique and a cool concept.
 #### Future work
