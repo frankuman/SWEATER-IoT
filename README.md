@@ -579,8 +579,8 @@ For future work, there is some work which would be interesting to see.
 3. Use the OLED more, since it doesn't show any interactive stuff at the moment.
 
 ### Pictures
-![picture](picture1.png)
-![picture](picture2.png)
+![picture](picture1.jpg)
+![picture](picture2.jpg)
 
 ### Video Presentation
 
