@@ -273,6 +273,42 @@ Visit the localhost of your raspberry pi when everything is running.
 http://192.168.0.X:5000/
 ```
 
+## Platform
+For this project, SweaterHub uses python Flask frontend interface paired with Plotly and Bootstrap.
+**Why?**
+Bootstrap creates a nice GUI which is interactive and responsive since the GUI has to be usable for phones.
+For storage two JSON files are used, this creates simplicity and ease of installation for the users. I chose to create my own platform since I already had to create an interface for the alarm. I have previous experience with
+flask programming so that was the best choice. And since there was already a need for the hub integrating the graphs with the hub was easy to do.
+### Dashboard
+The dashboard comes with various functions as seen in the picture. Below this are two pictures, one that was used for the latest prediction, and one that was used when the page was visited for camera testing purposes.
+There is a possibility to send custom commands. The following commands are
+
+**Flash the LED lights**
+```sh
+flash
+```
+**Does the same as a alarm would have been set but instantly**
+```sh
+alarm
+```
+**Displays the text on the LCD**
+```sh
+text to display on LCD
+```
+**Displays the text after OLED: on the OLED**
+```sh
+OLED:text to display on OLED
+```
+**Shows all the different clothes that are possible for prediction**
+```sh
+OLED:showall
+```
+![dashboard](dashboard.png)
+
+### History
+The history site shows different graphs with all the data collected.
+![history](history.png)
+
 ## Core Functions
 Much of the code is very uncommented and rushed and hard coded. I don't expect it to be very readable.
 If you want to understand the core functions a little code and a flowchart is presented below.
@@ -512,56 +548,39 @@ app.alarm_thread_started = True
 ### Data Transmission
 To send data from the hub to the pico and from the pico to the hub the MQTT protocol is used. This protocol is lightweight and easy to implement.
 No particular security functions have been introduced in this version, but I can guess that SSL can be easily implemented in the future.
-
-
-## Presenting the Data
-For this project, SweaterHub uses python Flask frontend interface paired with Plotly and Bootstrap. Bootstrap creates a nice GUI which is interactive and responsive, since the GUI has the usable for phones.
-
-### Dashboard
-The dashboard comes with various functions as seen in the picture. There is a possibilty to send custom commands. The following commands are
-
-**Flash the LED lights**
-```sh
-flash
-```
-**Does the same as a alarm would have been set but instantly**
-```sh
-alarm
-```
-**Displays the text on the LCD**
-```sh
-text to display on LCD
-```
-**Displays the text after OLED: on the OLED**
-```sh
-OLED:text to display on OLED
-```
-**Shows all the different clothes that are possible for prediction**
-```sh
-OLED:showall
-```
-![dashboard](dashboard.png)
-
-### Design Choices
-
-
+- **Pico to PI** The pico sends data to the pico every 30 seconds
+- **Pi to Pico** The pico sends data to the pico every 300 seconds or when an alarm is triggered
+**Why?**
+This was the best option since the PI already uses wifi. There is no need to have long range connectivity (such as LoRa) since everything should be close anyways.
+The flask server is only accessible on the local network, and the pi has the capability to be a mqtt broker. It's perfect! :)
 
 ### Data Storage
-
-
-### Automation
+Since memory might be an issue for future users (32 GB can be the cap for many users), only two pictures are saved at the same time. When a new is taken it is overwritten.
+For storing data, only two (2!) JSON files are used. JSON is easy to create, lightweight, and doesn't take up a lot of storage. The user can also easily remove them if they want to clear them
+and the software will create new empty ones. The data is stored forever. But the graphs only display 24H of data. There is no automation or trigger depending on the data in Sweater.
 
 ### Other issues
 #### Sweater is not receiving data from SweaterHUB.
 If the sweater is not receiving any data from the hub, keep the hub running and unplug the sweater and plug it back it. It should receive data again.
 
 ## Finalizing the Design
-### Final Results
-![Final Project](path/to/final_project_image.jpg)
+### 3D printable case
+There is a 3D printable case if any users would attempt to print one. It features holes for the screens and a hole for the LED lamps. The hole for the LED lamps also has a 
+inserter for a frosted diffuser acrylic sheet. This case does need some work tho.
+It has 3 holes on the side, incase anyone attempts to implement buttons
+It needs something to hold the displays.
 
 ### Final Thoughts
+This project was really fun to learn IoT programming, MQTT messaging, and programming for screens. I believe Sweater is a bit unique and a cool concept.
+#### Future work
+For future work, there is some work which would be interesting to see.
+1. Implement the camera on the pico instead
+2. Fix the 3D printable case
+3. Use the OLED more, since it doesn't show any interactive stuff at the moment.
 
 ### Pictures
+![picture](picture1.png)
+![picture](picture2.png)
 
 ### Video Presentation
 
