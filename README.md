@@ -518,7 +518,29 @@ No particular security functions have been introduced in this version, but I can
 For this project, SweaterHub uses python Flask frontend interface paired with Plotly and Bootstrap. Bootstrap creates a nice GUI which is interactive and responsive, since the GUI has the usable for phones.
 
 ### Dashboard
+The dashboard comes with various functions as seen in the picture. There is a possibilty to send custom commands. The following commands are
 
+**Flash the LED lights**
+```sh
+flash
+```
+**Does the same as a alarm would have been set but instantly**
+```sh
+alarm
+```
+**Displays the text on the LCD**
+```sh
+text to display on LCD
+```
+**Displays the text after OLED: on the OLED**
+```sh
+OLED:text to display on OLED
+```
+**Shows all the different clothes that are possible for prediction**
+```sh
+OLED:showall
+```
+![dashboard](dashboard.png)
 
 ### Design Choices
 
