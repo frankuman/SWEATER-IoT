@@ -9,14 +9,26 @@
 ## Project Overview
 SWEATER-IoT is designed to provide smart recommendations for daily outfits based on current weather conditions and indoor temperatures. The system also functions as an alarm clock, displaying the current time, temperatures, and outfit suggestions, and allows users to set alarms and tasks via a Python Flask dashboard.
 SWEATER uses two different APIs to predict the cloths to be worn. 
-1. **openAI api**
+
+## Features
+1. **Display**
+   - Show time, weather data and alarm time.
+2. **Sensors**
+   - Captures inside temperatures.
+4. **openAI api**
+   - Used for predicting what clothes to wear based on picture taken, weather data and inside temperature.
    - You need an openAI API account and fund it. Every prediction costs 0.01$. Small sums such as 5$ will therefore last you 500 days if one prediction is made every morning.
    - Signup here [OpenAI Signup](https://platform.openai.com/signup)
-3. **weatherapi**
+5. **weatherapi**
+   - Gets the outside weather data.
    - You need an weatherapi account. This is free for 1 million calls per month. Sweater makes around 8000 per month.
    - Signup here [weatherAPI Signup](https://www.weatherapi.com/)
-
-
+6. **Hub**
+   - Uses threading to control the MQTT communication, the flask server and the api calls.
+   - Send custom commands.
+   - Uses **Bootstrap** and **Plotly** to display nice GUI and Graphs.
+   - Set alarm remotely.
+     
 **Estimated Time to Complete Setup:** Approximately 4 hours
 
 ## System Architecture
@@ -217,8 +229,21 @@ sudo chmod -r 777 path/to/json_storage
 ```sh
 git clone https://github.com/frankuman/SWEATER-IoT/sweater
 ```
+### 2. Change the config.py file
+```python
+import ubinascii
+import machine
 
+SSID = 'ssid'          #change this
+PASSWORD = 'password'  #change this
 
+MQTT_BROKER = '192.168.0.101' #change this
+MQTT_CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+MQTT_TOPIC = 'home/temperature'
+MQTT_TOPIC_SUB = 'home/control'
+MQTT_TOPIC_TIME_REQ = 'home/time/request'
+MQTT_TOPIC_TIME_RESP = 'home/time/response'
+```
 ## Pi Hardware
 ### 1. Plug the USB camera into the Pi
 
@@ -242,24 +267,261 @@ git clone https://github.com/frankuman/SWEATER-IoT/sweater
 
 (12 * 2)/(1.422) = 16.8 hours
 
-
-## The Code
-### Core Functions
-#### Flask Server (collector.py)
-```python
-def code_is_not_here_yet():
-    pass
-
+## Getting started
+Visit the localhost of your raspberry pi when everything is running.
+```sh
+http://192.168.0.X:5000/
 ```
 
+## Core Functions
+Much of the code is very uncommented and rushed and hard coded. I don't expect it to be very readable.
+If you want to understand the core functions a little code and a flowchart is presented below.
+```mermaid
+flowchart TD
+ subgraph PICO_Loop_Subgraph["Forever Loop"]
+    direction TB
+        Sensor_Data["Get sensor data"]
+        Set_Lights["Set lights"]
+        Display_Screens["Display on screens"]
+        Check_Messages["Check for any MQTT messages\nand send temperature to PI"]
+        Do_Stuff["Do stuff depending on message"]
+        PICO_Loop["Forever loop"]
+  end
+ subgraph PICO["PICO (Sweater)"]
+    direction TB
+        PICO_Start["main.py\nSTART"]
+        PICO_Util["get time, connect wifi,\nother util stuff"]
+        PICO_Loop_Subgraph
+  end
+ subgraph Alarm_Process["Alarm Process"]
+    direction TB
+        Check_Alarm["Check if alarm is set\non frontend"]
+        Get_Weather["Every 300 seconds\nget weather API data"]
+        Capture_Images["Capture images"]
+        Predict["Predict"]
+        Send_to_PICO["Send to PICO"]
+  end
+ subgraph PI["PI (SweaterHub)"]
+    direction TB
+        PI_Start["sweaterhub.py\nSTART"]
+        Start_Frontend["Start frontend"]
+        Start_MQTT["Start MQTT thread"]
+        Log_Temperatures["Log temperatures"]
+        Start_Alarm["Start alarm thread"]
+        Display_Data["Display_Data"]
+        Alarm_Process
+  end
+    PICO_Start --> PICO_Util
+    PICO_Util --> PICO_Loop
+    PICO_Loop --> Sensor_Data
+    Sensor_Data --> Set_Lights
+    Set_Lights --> Display_Screens
+    Display_Screens --> Check_Messages
+    Check_Messages --> Do_Stuff & Log_Temperatures
+    Do_Stuff --> PICO_Loop
+    PI_Start --> Start_Frontend & Start_MQTT & Start_Alarm
+    Start_Frontend --> Display_Data
+    Start_MQTT --> Log_Temperatures
+    Start_Alarm --> Get_Weather & Alarm_Process
+    Check_Alarm -- If alarm is set and current time == alarm time --> Capture_Images
+    Capture_Images --> Predict
+    Predict --> Send_to_PICO
+    Send_to_PICO --> Check_Messages
+    style PICO_Loop_Subgraph stroke:#757575
+    style Alarm_Process stroke:#424242
+
+
+```
+### communication.py
+This function is the foundation of receiving messages. In the frontend there is the possibility to unput custom messages for testing.
+
+```python
+def control_callback(topic, msg):
+    topic_str = topic.decode()
+    message = msg.decode()
+    print(f"Received message on {topic_str}: {message}")
+
+    if message == 'flash':
+        flash_lights(1)
+        print("Received flash command!")
+    elif len(message) > 1 and message[0] == "2":
+        global outside_temp
+        outside_temp = message[2:]
+        print(outside_temp)
+    elif len(message) > 3 and message[0:2] == "at":
+        alarmtime = message[3:]
+        print("Displaying alarm")
+        alarmtime = str(alarmtime)
+        display_alarm(alarmtime)
+    elif len(message) > 4 and message[0:4] == "pred":
+        prediction = message[5:]
+        print("Displaying prediction")
+        display_prediction(prediction)
+    elif len(message) > 4 and message[0:4] == "OLED":
+        message = message[5:]
+        print("Displaying OLED")
+        display_on_oled(str(message))
+    else:
+   ...
+```
+### display.py
+These two function are to display the alarm time on the OLED display. By using bitmap letters we write them in 
+a big and nice font instead. The other functions for displaying the prediction on the OLED splits the string into a list so that
+it can be displayed on the individual rows on the OLED.
+```python
+def draw_large_digit(digit, x, y):
+    for row_index, row in enumerate(digit):
+        for col_index in range(16):
+            if row & (1 << (15 - col_index)):
+                display.pixel(x + col_index, y + row_index, 1)
+
+def display_alarm(alarmtime):
+    display.poweron()
+    display.fill(0)
+    alarmtime = str(alarmtime)
+    x_offset = 16
+    for char in alarmtime:
+        if char.isdigit():
+            draw_large_digit(digits[int(char)], x_offset, 20)
+            x_offset += 20 
+        elif char == ':':
+            draw_large_digit(colon, x_offset, 20)
+            x_offset += 20
+
+    display.text("  Alarm Time", 0, 0)
+    display.show()
+```
+#### main.py
+This is the main.py loop. To get the time for the clock it uses NTP before entering the loop. Then every 3 seconds it displays the
+wind (kph), humidity, forecast (C) and the chance of rain for the day. Every other 3 seconds it displays the
+date, day of the week, inside and outside temperature. It always displays the current hour, minute and seconds.
+```python
+   def main_loop():
+        counter = 0
+        temp_str = "Temp: --.-C"
+        while True:
+            
+            current_time = adjusted_time()
+            date_str = format_date(current_time)
+            day_str = format_day_of_week(current_time)
+            time_str = format_time(current_time)
+            
+            if counter % 30 == 0:
+                tmpsensor1 = temp()
+                outside_temp_str = get_outside_temp()
+                outside_temp_str = f"Outside Temp: {outside_temp_str}C"
+                print("Sensor 1: ", tmpsensor1)
+                try:
+                    temperature, humidity = measure_temp_humidity()
+                    
+                    print("Sensor 2: tmp ", temperature, " humidity: ", humidity)
+                    set_lights((tmpsensor1 + temperature) / 2)
+                    message = f"{(tmpsensor1 + temperature) / 2}"
+                    temp_str = "Inside  Temp: {:.1f}C".format((tmpsensor1 + temperature) / 2)
+                except Exception as error:
+                    print("Sensor 2: Exception occurred", error)
+                    set_lights(tmpsensor1)
+                    message = f"{tmpsensor1}"
+                    temp_str = "Inside  Temp: {:.1f}C".format(tmpsensor1)
+
+                try:
+                    mqtt_publish(client, MQTT_TOPIC, message)
+                except Exception as error:
+                    print("/--/ Could not send via MQTT")
+            
+            set_lights((tmpsensor1 + temperature) / 2)
+            print(date_str, day_str, time_str, temp_str)
+            date_str = f"{date_str}:{day_str}"
+            if counter % 6 == 0 or counter % 6 == 1 or counter % 6 == 2:
+                wind_speed, outside_humidity, forecast_avg_temp, chance_of_rain = get_weather_data()
+                toptext = f"     w:{wind_speed} h:{outside_humidity}"
+                bottomtext = f"fcast:{forecast_avg_temp} rain%:{chance_of_rain}"
+                display_message(toptext, outside_temp_str, time_str, bottomtext)
+            else:
+                display_message(date_str, outside_temp_str, time_str, temp_str)
+            
+            try:
+                client.check_msg()
+            except Exception as error:
+                print(error)
+                print("/--/ Could not check the messages via MQTT")
+
+            counter += 1
+            time.sleep(1)
+
+    time.sleep(1)
+    main_loop()
+
+```
+#### sweaterhub.py
+This threaded function checks the global variable alarm_time. If its set via the flask interface and then triggered it will get the weather data and then 
+call on the trigger function. The trigger function then takes 5 photos to get the camera used to the lighting, and then send all the data to the
+gpt-4o API.
+
+```python
+def check_alarm_time():
+    global alarm_time
+    global last_prediction_time
+    counter = 0
+    print("Starting check_alarm_time thread")
+    while True:
+        current_time = datetime.now()
+
+        if alarm_time:
+            if current_time.strftime("%H:%M") == alarm_time:
+                weather_data = store_api_temp()
+                try:
+                    alarm_trigger(weather_data)
+                except Exception as e: #use latest data if api call didnt work
+                    with open(temperature_data_file, 'r') as file:
+                        lines = file.readlines()
+                    if lines:
+                        weather_data = json.loads(lines[-1])
+                    alarm_trigger(weather_data)
+                alarm_time = None
+
+        if counter % 300 == 0:  # every 5 minutes right now, can be updates
+            weather_data = store_api_temp()
+            if weather_data:
+                current_temp = weather_data['current_temp']
+                send_api_temp(f"2:{current_temp}")
+                if alarm_time == None:
+                    wind_speed = weather_data['wind_speed']
+                    humidity = weather_data['humidity']
+                    forecast_avg_temp = weather_data['forecast_avg_temp']
+                    chance_of_rain = weather_data['chance_of_rain']
+                    LCD_TEXT = f"wd:Wind:{wind_speed}|Humidity:{humidity}|forecast:{forecast_avg_temp}|rain%:{chance_of_rain}"
+                    client.publish(MQTT_TOPIC_PUB, LCD_TEXT)
+
+            else: #if api call failed send latest temp with X indicating error
+                with open(temperature_data_file, 'r') as file:
+                    lines = file.readlines()
+                if lines:
+                    weather_data = json.loads(lines[-1])
+                    current_temp = weather_data['current_temp']
+                    send_api_temp(f"2:{current_temp}X")
+
+        counter += 1
+        time.sleep(1)
+
+alarm_thread = threading.Thread(target=check_alarm_time)
+alarm_thread.start()
+app.alarm_thread_started = True
+```
 
 ### Data Transmission
-
-### Design Choices
+To send data from the hub to the pico and from the pico to the hub the MQTT protocol is used. This protocol is lightweight and easy to implement.
+No particular security functions have been introduced in this version, but I can guess that SSL can be easily implemented in the future.
 
 
 ## Presenting the Data
+For this project, SweaterHub uses python Flask frontend interface paired with Plotly and Bootstrap. Bootstrap creates a nice GUI which is interactive and responsive, since the GUI has the usable for phones.
+
 ### Dashboard
+
+
+### Design Choices
+
 
 
 ### Data Storage
