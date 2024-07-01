@@ -1,7 +1,35 @@
 ![Banner](banner.png)
 # SWEATER-IoT
 **Smart Weather and Environmental Alarm for Temperature and Outfit Recommendations (SWEATER)**
-### 
+
+## Table of Contents
+- [Author](#author)
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Objective](#objective)
+- [Materials](#materials)
+  - [Pico Materials and Description](#pico-materials-and-description)
+  - [Pi Materials and Description](#pi-materials-and-description)
+- [Setup](#setup)
+  - [Computer Setup](#computer-setup)
+  - [Pi Software Setup](#pi-software-setup)
+  - [Mosquitto (MQTT Broker) Setup](#mosquitto-mqtt-broker-setup)
+  - [Starting the HUB](#starting-the-hub)
+  - [Pico Software](#pico-software)
+  - [Pi Hardware](#pi-hardware)
+  - [Pico Hardware](#pico-hardware)
+- [Getting started](#getting-started)
+- [Platform](#platform)
+- [Core Functions](#core-functions)
+- [Data Transmission](#data-transmission)
+- [Data Storage](#data-storage)
+- [Other issues](#other-issues)
+- [Finalizing the Design](#finalizing-the-design)
+- [Pictures](#pictures)
+- [Video Presentation](#video-presentation)
+- [License](#license)
+
 ## Author
 **Name:** Oliver Bölin
 
@@ -69,7 +97,6 @@ flowchart TB
     NotDecided --o Pi4
 ```
 
-
 ## Objective
 I choose to do something unique, which has not yet been done (from what I know). With a Raspberry Pi and a USB camera, I decided to do a smart alarm clock. called Sweater. The problem for many people is either overdressing or underdressing for the weather. Just checking the temperature on the phone is not always enough, and when checking outside the window you dont know what the weather actually is. The solution of Sweater is setting an alarm for the next day, then when waking up being greeted by the temperature inside, and outside, and what clothes to wear for that day. 
 
@@ -92,15 +119,15 @@ I choose to do something unique, which has not yet been done (from what I know).
 
 | Item                                    | Picture                                                                 | Price & Link                                                                                                               | Specifications                                                                                 |
 |-----------------------------------------|-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| Raspberry Pi 4 B                        | <img src="https://www.electrokit.com/upload/product/41017/41017110/41017108.jpg" width="100" height="100">                    | 583.2 SEK - [Electrokit](https://www.electrokit.com/raspberry-pi-4-model-b/4gb)                                            | Acts as the hub by hosting the Flask web application.                                         |
+| Raspberry Pi 4 B                        | <img src="https://www.electrokit.com/upload/product/41017/41017110/410171
+
+08.jpg" width="100" height="100">                    | 583.2 SEK - [Electrokit](https://www.electrokit.com/raspberry-pi-4-model-b/4gb)                                            | Acts as the hub by hosting the Flask web application.                                         |
 | SD Card (for Raspberry Pi)              | <img src="https://www.electrokit.com/cache/57/700x700-quick_49_f9_3719_41021732.jpg" width="100" height="100">                    | 103.2 SEK - [Electrokit](https://www.electrokit.com/minneskort-sdhc-32gb-med-raspberry-pi-os)                              | Storage for the Raspberry Pi operating system and data.                                       |
 | Power Supply for Raspberry Pi           | <img src="https://www.electrokit.com/cache/0d/700x700-product_41017_41017115_41017115.jpg" width="100" height="100">    | 79.2 SEK - [Electrokit](https://www.electrokit.com/raspberry-pi-4-stromforsorjning-5v-3a-usb-c-svart)                      | Powers the Raspberry Pi.                                                                      |
 | USB Web Camera (Aukey PC-LM1E)          | <img src="https://www.netonnet.se/GetFile/ProductImagePrimary/dator-surfplatta/datortillbehor/webbkamera/aukey-pc-lm1e-webcam(1015689)_407136_1_Normal_Large.webp" width="100" height="100">                                           | Price varies                                                                                                                | Used for capturing images for predictions (if applicable).                                    |
 | 1 TB External HDD                       | <img src="https://m.media-amazon.com/images/I/61IBBVJvSDL._AC_UL320_.jpg" width="100" height="100">                                             | Not needed                                                                                                                  | Optional storage for additional data.                                                         |
 
-
-
-# Setup
+## Setup
 Follow these step-by-step instructions to successfully set up a SWEATER.
 
 ## Computer Setup
@@ -144,6 +171,7 @@ sudo apt install mosquitto mosquitto-clients
 Ensure to setup the mosquitto listener on port 1883
 
 [Mosquitto guide](https://medium.com/gravio-edge-iot-platform/how-to-set-up-a-mosquitto-mqtt-broker-securely-using-client-certificates-82b2aaaef9c8)
+
 ## Starting the HUB
 
 ### 1. Download the Hub to the Pi
@@ -171,6 +199,7 @@ python3 -m venv myenv
 ```sh
 source myenv/bin/activate
 ```
+
 ### 3. Install the Required Packages
 
 ```sh
@@ -210,6 +239,7 @@ While the hub might not communicate at the moment, it can be started with the fo
 ```sh
 python sweaterhub.py
 ```
+
 ### Access right problems
 If the hub has access rights problems, you might need to give it access rights
 ```sh
@@ -224,12 +254,14 @@ sudo chmod -r 777 hub/static/images
 ```sh
 sudo chmod -r 777 path/to/json_storage
 ```
+
 ## Pico Software
 
 ### 1. Download the sweater Pico software
 ```sh
 git clone https://github.com/frankuman/SWEATER-IoT/sweater
 ```
+
 ### 2. Change the config.py file
 ```python
 import ubinascii
@@ -245,11 +277,15 @@ MQTT_TOPIC_SUB = 'home/control'
 MQTT_TOPIC_TIME_REQ = 'home/time/request'
 MQTT_TOPIC_TIME_RESP = 'home/time/response'
 ```
+
 ## Pi Hardware
+
 ### 1. Plug the USB camera into the Pi
 
 ## Pico Hardware
+
 ### 1. Plug everything in accordingly to the Circuit Diagram
+
 #### Circuit Diagram
 ![Circuit Diagram](images/sketch.png)
 
@@ -306,8 +342,11 @@ http://192.168.0.X:5000/
 For this project, SweaterHub uses python Flask frontend interface paired with Plotly and Bootstrap.
 **Why?**
 Bootstrap creates a nice GUI which is interactive and responsive since the GUI has to be usable for phones.
-For storage two JSON files are used, this creates simplicity and ease of installation for the users. I chose to create my own platform since I already had to create an interface for the alarm. I have previous experience with
+For storage two JSON files are used, this creates simplicity and ease of installation for the users. I chose to create my own platform since I already had to create an interface for the
+
+ alarm. I have previous experience with
 flask programming so that was the best choice. And since there was already a need for the hub integrating the graphs with the hub was easy to do.
+
 ### Dashboard
 The dashboard comes with various functions as seen in the picture. Below this are two pictures, one that was used for the latest prediction, and one that was used when the page was visited for camera testing purposes.
 There is a possibility to send custom commands. The following commands are
@@ -538,7 +577,9 @@ def check_alarm_time():
                 try:
                     alarm_trigger(weather_data)
                 except Exception as e: #use latest data if api call didnt work
-                    with open(temperature_data_file, 'r') as file:
+                    with open(temperature_data_file
+
+, 'r') as file:
                         lines = file.readlines()
                     if lines:
                         weather_data = json.loads(lines[-1])
@@ -593,14 +634,17 @@ and the software will create new empty ones. The data is stored forever. But the
 If the sweater is not receiving any data from the hub, keep the hub running and unplug the sweater and plug it back it. It should receive data again.
 
 ## Finalizing the Design
+
 ### 3D printable case
 There is a 3D printable case if any users would attempt to print one. It features holes for the screens and a hole for the LED lamps. The hole for the LED lamps also has a 
 inserter for a frosted diffuser acrylic sheet. This case does need some work tho.
 It has 3 holes on the side, incase anyone attempts to implement buttons
 It needs something to hold the displays and a hole for the USB cable.
 ![picture](images/skaletbild.png)
+
 ### Final Thoughts
 This project was really fun to learn IoT programming, MQTT messaging, and programming for screens. I believe Sweater is a bit unique and a cool concept.
+
 #### Future work
 For future work, there is some work which would be interesting to see.
 1. Implement the camera on the pico instead
@@ -610,11 +654,10 @@ For future work, there is some work which would be interesting to see.
 ### Pictures
 ![picture](images/picture1.jpg)
 
-
 ### Video Presentation
 Coming soon B)
-## License
 
+## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 
