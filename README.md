@@ -253,7 +253,35 @@ MQTT_TOPIC_TIME_RESP = 'home/time/response'
 #### Circuit Diagram
 ![Circuit Diagram](images/sketch.png)
 
+### **I2C LCD Display:**
+- **VCC**: Connected to the VSYS.
+- **GND**: Connected to the ground.
+- **SDA**: Connected to GP14.
+- **SCL**: Connected to GP15.
+
+### **OLED Display:**
+- **VDD**: Connected to the power rail (3.3V).
+- **GND**: Connected to the ground rail.
+- **SCK**: Connected to GP21.
+- **SDA**: Connected to GP20.
+
+### **DHT11 Sensor:**
+- **VCC**: Connected to the power rail (3.3V).
+- **GND**: Connected to the ground rail.
+- **Data**: Connected to GP26.
+
+### **MCP9700 Temperature Sensor:**
+- **VCC**: Connected to the power rail (3.3V).
+- **GND**: Connected to the ground rail.
+- **Vout**: Connected to GP27.
+
+### **LEDs:**
+- **Red LEDs (Anode)**: Connected to GP6, GP7, and GP8.
+- **Yellow LEDs (Anode)**: Connected to GP3, GP4, and GP5.
+- **Green LED (Anode)**: Connected to GP0, GP1, and GP2.
+
 ### Electrical Calculations
+
 **Power = Voltage x Current**
 
 - OLED: 3.3V x 40mA = 132mW 
