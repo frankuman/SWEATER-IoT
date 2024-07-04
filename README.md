@@ -1,7 +1,7 @@
 ![Banner](banner.png)
 
 # SWEATER-IoT
-**Smart Weather and Environmental Alarm for Temperature and Outfit Recommendations (SWEATER)**
+**Smart Weather and Environmental Alarm for Temperature and Ensemble  Recommendations (SWEATER)**
 
 ## Table of Contents
 - [Author](#author)
