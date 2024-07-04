@@ -636,8 +636,10 @@ For future work, there are some things which would be interesting to see:
 ### Pictures
 ![picture](images/picture1.jpg)
 
+You can embed the YouTube short directly into your README using the following markdown:
+
 ### Video Presentation
-Coming soon B)
+[![Video](https://img.youtube.com/vi/LQbQBHZF4kw/0.jpg)](https://www.youtube.com/shorts/LQbQBHZF4kw)
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
